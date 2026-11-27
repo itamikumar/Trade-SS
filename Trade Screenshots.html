@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trade Screenshots</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f7f9;--card:#fff;--text:#14181f;--muted:#6b7380;--line:#e2e5ea;--accent:#2563eb;--win:#12935a;--loss:#d6403a;--be:#8a6d00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1217;--card:#181c23;--text:#e8ebf0;--muted:#8d96a5;--line:#2a303a;--accent:#5b8cff;--win:#3ccf8e;--loss:#ff6b64;--be:#e0b83a}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1217;--card:#181c23;--text:#e8ebf0;--muted:#8d96a5;--line:#2a303a;--accent:#5b8cff;--win:#3ccf8e;--loss:#ff6b64;--be:#e0b83a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
+.stat b{display:block;font-size:18px}.stat span{font-size:12px;color:var(--muted)}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted);background:var(--card);cursor:pointer}
+.drop.over{border-color:var(--accent);color:var(--accent)}
+.drop b{color:var(--text)}
+.bar{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+input,select,textarea,button{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.bar input{flex:1;min-width:140px}
+button{cursor:pointer}button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.danger{color:var(--loss)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer}
+.card img{width:100%;height:150px;object-fit:cover;display:block;background:var(--line)}
+.card .in{padding:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.sym{font-weight:700}
+.tag{font-size:11px;padding:2px 7px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.Win{color:var(--win)}.Loss{color:var(--loss)}.BE{color:var(--be)}
+.muted{color:var(--muted);font-size:12px}
+.empty{text-align:center;color:var(--muted);padding:40px 0}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px));z-index:20}
+.modal.open{display:flex}
+.panel{background:var(--card);border-radius:14px;max-width:560px;width:100%;padding:14px}
+.panel img{width:100%;border-radius:8px;display:block;margin-bottom:10px}
+.panel label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}
+.panel input,.panel select,.panel textarea{width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.actions{display:flex;gap:8px;margin-top:14px;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📈 Trade Screenshots</h1>
+  <div class="stats">
+    <div class="stat"><b id="sCount">0</b><span>Trades</span></div>
+    <div class="stat"><b id="sWin">–</b><span>Win rate</span></div>
+    <div class="stat"><b id="sPnl">0</b><span>Net P/L</span></div>
+    <div class="stat"><b id="sBest">–</b><span>Best trade</span></div>
+  </div>
+
+  <div class="drop" id="drop" tabindex="0">
+    <b>Drop, paste (Ctrl/Cmd+V) or tap to add screenshots</b><br>
+    <span>Images are saved privately in this browser</span>
+  </div>
+  <input type="file" id="file" accept="image/*" multiple hidden>
+
+  <div class="bar">
+    <input id="q" type="search" placeholder="Search symbol, tag, notes…">
+    <select id="f"><option value="">All results</option><option>Win</option><option>Loss</option><option>BE</option></select>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">No screenshots yet. Add your first one above.</div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="panel">
+    <img id="mImg" alt="Trade screenshot">
+    <div class="two">
+      <div><label>Symbol</label><input id="mSym" placeholder="e.g. EURUSD"></div>
+      <div><label>Date</label><input id="mDate" type="date"></div>
+      <div><label>Side</label><select id="mSide"><option>Long</option><option>Short</option></select></div>
+      <div><label>Result</label><select id="mRes"><option>Win</option><option>Loss</option><option>BE</option></select></div>
+      <div><label>P/L amount</label><input id="mPnl" type="number" step="any" placeholder="0"></div>
+      <div><label>Tags (comma separated)</label><input id="mTags" placeholder="breakout, news"></div>
+    </div>
+    <label>Notes</label><textarea id="mNotes" rows="3" placeholder="Setup, entry reason, mistakes…"></textarea>
+    <div class="actions">
+      <button class="danger" id="mDel">Delete</button>
+      <span><button id="mCancel">Close</button> <button class="primary" id="mSave">Save</button></span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  let db=null,items=[],cur=null,mem=false;
+  const urls={};
+
+  function openDB(){return new Promise(res=>{
+    try{const r=indexedDB.open('trade-shots',1);
+      r.onupgradeneeded=()=>r.result.createObjectStore('t',{keyPath:'id'});
+      r.onsuccess=()=>res(r.result);r.onerror=()=>res(null);
+    }catch(e){res(null)}
+  })}
+  function tx(mode){return db.transaction('t',mode).objectStore('t')}
+  function all(){return new Promise(res=>{if(!db)return res([]);try{const r=tx('readonly').getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>res([])}catch(e){res([])}})}
+  function put(o){return new Promise(res=>{if(!db)return res();try{const r=tx('readwrite').put(o);r.onsuccess=r.onerror=()=>res()}catch(e){res()}})}
+  function del(id){return new Promise(res=>{if(!db)return res();try{const r=tx('readwrite').delete(id);r.onsuccess=r.onerror=()=>res()}catch(e){res()}})}
+
+  function shrink(file){return new Promise(res=>{
+    const img=new Image(),u=URL.createObjectURL(file);
+    img.onload=()=>{const m=1800,s=Math.min(1,m/Math.max(img.width,img.height));
+      const c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);
+      c.toBlob(b=>res(b||file),'image/jpeg',.88)};
+    img.onerror=()=>{URL.revokeObjectURL(u);res(file)};img.src=u;
+  })}
+  const today=()=>new Date().toISOString().slice(0,10);
+  const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  const url=o=>urls[o.id]||(urls[o.id]=URL.createObjectURL(o.blob));
+  const fmt=n=>(n>0?'+':'')+(Math.round(n*100)/100);
+
+  async function addFiles(files){
+    for(const f of files){
+      if(!f.type.startsWith('image/'))continue;
+      const blob=await shrink(f);
+      const o={id:uid(),blob,symbol:'',date:today(),side:'Long',result:'Win',pnl:0,tags:'',notes:'',created:Date.now()};
+      items.push(o);await put(o);
+      if(files.length===1||f===files[files.length-1])openModal(o);
+    }
+    render();
+  }
+
+  function render(){
+    const q=$('q').value.toLowerCase().trim(),f=$('f').value;
+    const list=items.filter(o=>(!f||o.result===f)&&(!q||(o.symbol+' '+o.tags+' '+o.notes).toLowerCase().includes(q)))
+      .sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.created-a.created);
+    const g=$('grid');g.textContent='';
+    list.forEach(o=>{
+      const d=document.createElement('div');d.className='card';
+      const im=document.createElement('img');im.src=url(o);im.alt='';im.loading='lazy';
+      const inn=document.createElement('div');inn.className='in';
+      const r1=document.createElement('div');r1.className='row';
+      const s=document.createElement('span');s.className='sym';s.textContent=o.symbol||'Untitled';
+      const p=document.createElement('span');p.className=o.result;p.textContent=fmt(+o.pnl||0);p.style.fontWeight=600;
+      r1.append(s,p);
+      const r2=document.createElement('div');r2.className='row muted';
+      r2.append(Object.assign(document.createElement('span'),{textContent:(o.date||'')+' · '+o.side}),
+                Object.assign(document.createElement('span'),{textContent:o.result}));
+      inn.append(r1,r2);
+      if(o.tags){const t=document.createElement('div');t.style.marginTop='6px';
+        o.tags.split(',').map(x=>x.trim()).filter(Boolean).slice(0,3).forEach(x=>{const e=document.createElement('span');e.className='tag';e.textContent=x;e.style.marginRight='4px';t.append(e)});inn.append(t)}
+      d.append(im,inn);d.onclick=()=>openModal(o);g.append(d);
+    });
+    $('empty').style.display=list.length?'none':'block';
+    $('empty').textContent=items.length?'No trades match your filter.':'No screenshots yet. Add your first one above.';
+    const n=items.length,w=items.filter(o=>o.result==='Win').length,dec=items.filter(o=>o.result!=='BE').length;
+    const net=items.reduce((a,o)=>a+(+o.pnl||0),0),best=items.reduce((a,o)=>Math.max(a,+o.pnl||0),0);
+    $('sCount').textContent=n;$('sWin').textContent=dec?Math.round(w/dec*100)+'%':'–';
+    $('sPnl').textContent=fmt(net);$('sPnl').style.color=net>0?'var(--win)':net<0?'var(--loss)':'';
+    $('sBest').textContent=best>0?fmt(best):'–';
+  }
+
+  function openModal(o){
+    cur=o;$('mImg').src=url(o);
+    $('mSym').value=o.symbol;$('mDate').value=o.date;$('mSide').value=o.side;$('mRes').value=o.result;
+    $('mPnl').value=o.pnl||'';$('mTags').value=o.tags;$('mNotes').value=o.notes;
+    $('modal').classList.add('open');
+  }
+  const close=()=>{$('modal').classList.remove('open');cur=null};
+  $('mCancel').onclick=close;
+  $('modal').onclick=e=>{if(e.target===$('modal'))close()};
+  $('mSave').onclick=async()=>{
+    if(!cur)return;
+    Object.assign(cur,{symbol:$('mSym').value.trim().toUpperCase(),date:$('mDate').value,side:$('mSide').value,
+      result:$('mRes').value,pnl:parseFloat($('mPnl').value)||0,tags:$('mTags').value,notes:$('mNotes').value});
+    await put(cur);close();render();
+  };
+  $('mDel').onclick=async()=>{
+    if(!cur||!confirm('Delete this screenshot?'))return;
+    items=items.filter(x=>x!==cur);await del(cur.id);close();render();
+  };
+
+  const drop=$('drop');
+  drop.onclick=()=>$('file').click();
+  $('file').onchange=e=>{addFiles([...e.target.files]);e.target.value=''};
+  ['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
+  ['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
+  document.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.files.length)addFiles([...e.dataTransfer.files])});
+  document.addEventListener('paste',e=>{
+    if($('modal').classList.contains('open'))return;
+    const fs=[...(e.clipboardData?e.clipboardData.files:[])];if(fs.length)addFiles(fs);
+  });
+  $('q').oninput=render;$('f').onchange=render;
+
+  (async()=>{db=await openDB();items=await all();render()})();
+})();
+</script>
+</body>
+</html>
