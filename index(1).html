@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gold Trading Journal</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#14181f;--muted:#6b7380;--line:#e2e5ea;--accent:#2563eb;--win:#12935a;--loss:#d6403a;--be:#8a6d1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1217;--card:#181c23;--text:#e8ebf0;--muted:#8d96a5;--line:#2a303a;--accent:#4f8cff;--win:#3ac98a;--loss:#ff6b64;--be:#d9b44a}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:14px}
+[hidden]{display:none!important}
+h1{font-size:20px;margin:4px 0}
+h2{font-size:15px;margin:18px 0 8px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+input,select,textarea,button{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+button{cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.danger{color:var(--loss)}
+button:disabled{opacity:.6}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 0;margin:6px 0}
+.tabs button{white-space:nowrap;border-radius:99px}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.bar{display:flex;gap:8px;margin:6px 0 10px;flex-wrap:wrap;align-items:center}
+.bar input[type=search]{flex:1;min-width:140px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
+.kpi span{display:block;font-size:12px;color:var(--muted)}
+.kpi b{font-size:18px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:700px){.two{grid-template-columns:1fr}}
+.ch{width:100%;height:auto;display:block}
+.scroll{overflow-x:auto}
+.tbl{border-collapse:collapse;font-size:13px;width:100%;min-width:600px}
+.tbl th,.tbl td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl th{color:var(--muted);font-weight:600}
+.tbl tr.tot td{font-weight:700}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:16px;text-align:center;color:var(--muted);background:var(--card);cursor:pointer;flex:1}
+.drop.over{border-color:var(--accent);color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer}
+.card img,.card .ph{width:100%;height:140px;object-fit:cover;display:block;background:var(--line)}
+.card .in{padding:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.sym{font-weight:700}
+.Win{color:var(--win)}.Loss{color:var(--loss)}.BE{color:var(--be)}
+.muted{color:var(--muted);font-size:12px}
+.empty{text-align:center;color:var(--muted);padding:30px 0}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:16px}
+.modal.open{display:flex}
+.panel{background:var(--card);border-radius:14px;max-width:600px;width:100%;padding:14px}
+.panel img{width:100%;border-radius:8px;display:block;margin-bottom:10px}
+label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}
+.panel input,.panel select,.panel textarea,.form input,.form select,.form textarea{width:100%}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:520px){.three{grid-template-columns:1fr 1fr}}
+.calc{margin-top:10px;padding:8px;border-radius:8px;background:var(--bg);font-size:13px}
+.actions{display:flex;gap:8px;margin-top:14px;justify-content:space-between}
+.login{max-width:360px;margin:12vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.login input{width:100%;margin-bottom:10px}.login button{width:100%}
+.err{color:var(--loss);font-size:13px;min-height:18px;margin:6px 0 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;display:none}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:end}
+</style>
+</head>
+<body>
+
+<div id="login" class="wrap" hidden>
+  <div class="login">
+    <h1>Gold Trading Journal</h1>
+    <input id="email" type="email" placeholder="Email" autocomplete="username">
+    <input id="pass" type="password" placeholder="Password" autocomplete="current-password">
+    <button class="primary" id="loginBtn">Log in</button>
+    <p class="err" id="loginErr"></p>
+  </div>
+</div>
+
+<div id="app" class="wrap" hidden>
+  <div class="top"><h1>Gold Trading Journal</h1><button id="logout">Log out</button></div>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="bar" id="per">
+    <label style="margin:0">Year</label><input type="number" id="pY" style="width:90px">
+    <label style="margin:0">Month</label><select id="pM"></select>
+  </div>
+  <div id="view"></div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="panel">
+    <img id="mImg" alt="Trade screenshot" hidden>
+    <label>Screenshot (optional)</label><input type="file" id="mFile" accept="image/*">
+    <div class="three">
+      <div><label>Date</label><input id="mDate" type="date"></div>
+      <div><label>Strategy</label><select id="mStrat"></select></div>
+      <div><label>Direction</label><select id="mDir"><option>Buy</option><option>Sell</option></select></div>
+      <div><label>Lots</label><input id="mLots" type="number" step="any"></div>
+      <div><label>Entry price</label><input id="mEntry" type="number" step="any"></div>
+      <div><label>Stop loss</label><input id="mSL" type="number" step="any"></div>
+      <div><label>Take profit</label><input id="mTP" type="number" step="any"></div>
+      <div><label>Exit price</label><input id="mExit" type="number" step="any"></div>
+      <div><label>Gross P/L</label><input id="mGross" type="number" step="any"></div>
+      <div><label>Fees / swap (cost)</label><input id="mFees" type="number" step="any" value="0"></div>
+    </div>
+    <label>Notes</label><textarea id="mNotes" rows="3"></textarea>
+    <div class="calc" id="mCalc"></div>
+    <p class="err" id="mErr"></p>
+    <div class="actions">
+      <button class="danger" id="mDel">Delete</button>
+      <div style="display:flex;gap:8px"><button id="mCancel">Cancel</button><button class="primary" id="mSave">Save</button></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const sb = supabase.createClient('https://wihouxhxcomrwwwhbmud.supabase.co','sb_publishable_0QyfnCAwLctIg1Bkl4_NeA_dOfB8DEX');
+const BUCKET='screenshots';
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+const $=id=>document.getElementById(id), sum=a=>a.reduce((x,y)=>x+y,0);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const f=n=>(n<0?'-':'')+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pc=n=>(n*100).toFixed(1)+'%', pad=n=>String(n).padStart(2,'0');
+const cl=n=>`<span class="${n>0?'Win':n<0?'Loss':''}">${f(n)}</span>`;
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const TABS=['Dashboard','Trades','Cash Flow','Daily','Monthly','Yearly','Strategies','Plan','Notes','Setup'];
+const PER=['Dashboard','Daily','Monthly','Strategies','Plan'];
+const DEF={account:'My Gold Account',instrument:'XAUUSD (Gold)',currency:'USD',initcap:5000,start:'2026-01-01',firstYear:2026,contract:100,
+ strategies:['Breakout','Trend Pullback','Support / Resistance','News Trading','Scalping'],
+ plan:{primary:'Trend pullback at key levels',secondary:'Breakout of Asian range',htf:'Daily / H4 trend direction',etf:'M15 / M5',sessions:'London open & New York overlap',indicators:'EMA 50/200, previous day high/low, round numbers, order blocks',entry:'1) HTF trend agrees  2) Price reacts at key level  3) Candle confirmation on entry TF',exit:'SL beyond structure. Move to break-even at 1R. Partial profit at 1.5R, rest at TP.',riskPct:1,dailyLossPct:3,weeklyLossPct:6,maxTrades:3,minRR:2,slDist:5,dailyTgt:1,monthlyTgt:5,yearlyTgt:60}};
+let user=null,S={t:[],c:[],n:[],s:DEF},urls={},tab='Dashboard',Y=+today().slice(0,4),M=+today().slice(5,7),queue=[],cur=null,q='',fo='';
+
+/* ---------- calculations ---------- */
+const net=t=>t.gross!=null?t.gross-(t.fees||0):(t.pnl||0);
+const risk=t=>t.lots&&t.entry!=null&&t.stop_loss!=null?Math.abs(t.entry-t.stop_loss)*t.lots*S.s.contract:null;
+const rr=t=>(t.entry!=null&&t.stop_loss!=null&&t.take_profit!=null&&t.entry!=t.stop_loss)?Math.abs(t.take_profit-t.entry)/Math.abs(t.entry-t.stop_loss):null;
+const R=t=>{const k=risk(t);return k?net(t)/k:null};
+const out=t=>{const n=net(t);return n>0?'Win':n<0?'Loss':'BE'};
+const cs=x=>x.type==='Deposit'?+x.amount:-x.amount;
+const bal=d=>S.s.initcap+sum(S.c.filter(x=>x.flow_date<d).map(cs))+sum(S.t.filter(t=>t.trade_date<d).map(net));
+function st(a){const n=a.length,v=a.map(net),w=v.filter(x=>x>0),l=v.filter(x=>x<0),gp=sum(w),gl=-sum(l),rs=a.map(R).filter(x=>x!=null);
+ return{n,w:w.length,l:l.length,be:n-w.length-l.length,net:sum(v),wr:n?w.length/n:0,pf:gl?gp/gl:0,avgR:rs.length?sum(rs)/rs.length:0,best:n?Math.max(...v):0,worst:n?Math.min(...v):0,aw:w.length?gp/w.length:0,al:l.length?-gl/l.length:0}}
+function per(a,b){const tr=S.t.filter(x=>x.trade_date>=a&&x.trade_date<b),cf=S.c.filter(x=>x.flow_date>=a&&x.flow_date<b),s=st(tr),o=bal(a),d=sum(cf.filter(x=>x.type==='Deposit').map(x=>+x.amount)),w=sum(cf.filter(x=>x.type!=='Deposit').map(x=>+x.amount));
+ return{...s,open:o,dep:d,wd:w,close:o+d-w+s.net,ret:(o+d)>0?s.net/(o+d):0}}
+const mr=(y,m)=>[`${y}-${pad(m)}-01`,m===12?`${y+1}-01-01`:`${y}-${pad(m+1)}-01`];
+const months=()=>MN.map((_,i)=>per(...mr(Y,i+1)));
+
+/* ---------- charts (inline SVG) ---------- */
+function bars(l,v){const W=600,H=200,P=24,n=v.length,mx=Math.max(0,...v),mn=Math.min(0,...v),r=(mx-mn)||1,y=x=>P+(mx-x)/r*(H-2*P),bw=(W-2*P)/n;
+ let s=`<svg viewBox="0 0 ${W} ${H}" class="ch"><line x1="${P}" x2="${W-P}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/>`;
+ v.forEach((x,i)=>{s+=`<rect x="${P+i*bw+bw*.15}" y="${Math.min(y(x),y(0))}" width="${bw*.7}" height="${Math.max(Math.abs(y(x)-y(0)),1)}" fill="${x>=0?'var(--win)':'var(--loss)'}"><title>${l[i]}: ${f(x)}</title></rect><text x="${P+i*bw+bw/2}" y="${H-6}" text-anchor="middle" font-size="${n>14?7:10}" fill="var(--muted)">${l[i]}</text>`});
+ return s+`<text x="2" y="12" font-size="10" fill="var(--muted)">${f(mx)}</text><text x="2" y="${H-18}" font-size="10" fill="var(--muted)">${f(mn)}</text></svg>`}
+function lines(l,v){const W=600,H=200,P=28,mx=Math.max(...v),mn=Math.min(...v),r=(mx-mn)||1,x=i=>P+i*(W-2*P)/Math.max(1,v.length-1),y=t=>P+(mx-t)/r*(H-2*P);
+ let s=`<svg viewBox="0 0 ${W} ${H}" class="ch"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="${v.map((t,i)=>x(i)+','+y(t)).join(' ')}"/>`;
+ v.forEach((t,i)=>{s+=`<circle cx="${x(i)}" cy="${y(t)}" r="3" fill="var(--accent)"><title>${l[i]}: ${f(t)}</title></circle><text x="${x(i)}" y="${H-6}" text-anchor="middle" font-size="10" fill="var(--muted)">${l[i]}</text>`});
+ return s+`<text x="2" y="12" font-size="10" fill="var(--muted)">${f(mx)}</text><text x="2" y="${H-18}" font-size="10" fill="var(--muted)">${f(mn)}</text></svg>`}
+const kpi=(a,b)=>`<div class="kpi"><span>${a}</span><b>${b}</b></div>`;
+
+/* ---------- table helpers ---------- */
+const PH=['Opening','Deposits','Withdrawals','Net P/L','Closing','Return %','Trades','Wins','Losses','BE','Win rate','Profit factor','Avg R','Best','Worst'];
+const prow=(lab,r,cls='')=>`<tr class="${cls}"><td>${lab}</td><td>${f(r.open)}</td><td>${f(r.dep)}</td><td>${f(r.wd)}</td><td>${cl(r.net)}</td><td>${f(r.close)}</td><td>${pc(r.ret)}</td><td>${r.n}</td><td>${r.w}</td><td>${r.l}</td><td>${r.be}</td><td>${pc(r.wr)}</td><td>${r.pf?r.pf.toFixed(2):'-'}</td><td>${r.avgR.toFixed(2)}</td><td>${f(r.best)}</td><td>${f(r.worst)}</td></tr>`;
+const tbl=(h,rows)=>`<div class="scroll"><table class="tbl"><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows}</table></div>`;
+
+/* ---------- views ---------- */
+const V={
+Dashboard(){
+ const ms=months(),yr=per(`${Y}-01-01`,`${Y+1}-01-01`),mo=ms[M-1],td=sum(S.t.filter(t=>t.trade_date===today()).map(net));
+ const nets=ms.map(x=>x.net);
+ return `<div class="kpis">${kpi('Current balance',f(bal('9999')))}${kpi('Net P/L (year)',cl(yr.net))}${kpi('Return % (year)',pc(yr.ret))}${kpi('Net P/L ('+MN[M-1]+')',cl(mo.net))}
+ ${kpi('Today’s P/L',cl(td))}${kpi('Trades (year)',yr.n)}${kpi('Win rate (year)',pc(yr.wr))}${kpi('Profit factor (year)',yr.pf?yr.pf.toFixed(2):'-')}
+ ${kpi('Avg win',f(yr.aw))}${kpi('Avg loss',f(yr.al))}${kpi('Avg result (R)',yr.avgR.toFixed(2))}${kpi('Expectancy / trade',f(yr.n?yr.net/yr.n:0))}
+ ${kpi('Deposits (year)',f(yr.dep))}${kpi('Withdrawals (year)',f(yr.wd))}${kpi('Best month',f(Math.max(...nets)))}${kpi('Worst month',f(Math.min(...nets)))}</div>
+ <div class="two"><div class="box"><b>Monthly net P/L ${Y}</b>${bars(MN.map(m=>m.slice(0,3)),nets)}</div>
+ <div class="box"><b>Closing balance by month ${Y}</b>${lines(MN.map(m=>m.slice(0,3)),ms.map(x=>x.close))}</div></div>`},
+Trades(){return `<div class="bar"><div class="drop" id="drop">Tap to add screenshots, or paste or drop them here</div><button class="primary" onclick="openModal(null,null)">+ Add trade</button></div><input type="file" id="file" accept="image/*" multiple hidden>
+ <div class="bar"><input type="search" id="q" placeholder="Search strategy, notes..." value="${esc(q)}" oninput="q=this.value;$('grid').innerHTML=grid()"><select onchange="fo=this.value;$('grid').innerHTML=grid()"><option value="">All results</option>${['Win','Loss','BE'].map(o=>`<option ${fo===o?'selected':''}>${o}</option>`).join('')}</select></div>
+ <div class="muted" style="margin-bottom:8px">${S.t.length} trades, net ${f(sum(S.t.map(net)))}</div><div class="grid" id="grid">${grid()}</div>`},
+'Cash Flow'(){const dep=sum(S.c.filter(x=>x.type==='Deposit').map(x=>+x.amount)),wd=sum(S.c.filter(x=>x.type!=='Deposit').map(x=>+x.amount));
+ return `<div class="kpis">${kpi('Total deposits',f(dep))}${kpi('Withdrawals',f(wd))}${kpi('Net flow',f(dep-wd))}</div>
+ <div class="box form"><div><label>Date</label><input id="cD" type="date" value="${today()}"></div><div><label>Type</label><select id="cT"><option>Deposit</option><option>Withdrawal</option></select></div><div><label>Amount</label><input id="cA" type="number" step="any"></div><div><label>Note / method</label><input id="cN"></div><button class="primary" onclick="addC()">Add</button></div>
+ <div class="box">${tbl(['Date','Type','Amount','Note',''],S.c.map(x=>`<tr><td>${x.flow_date}</td><td>${esc(x.type)}</td><td>${f(+x.amount)}</td><td>${esc(x.note)}</td><td><button class="danger" onclick="delRow('cashflow','${x.id}')">Delete</button></td></tr>`).join('')||'<tr><td colspan=5>No deposits or withdrawals yet.</td></tr>')}</div>`},
+Daily(){const n=new Date(Y,M,0).getDate();let run=bal(`${Y}-${pad(M)}-01`),cum=0,rows='',l=[],v=[];
+ for(let d=1;d<=n;d++){const ds=`${Y}-${pad(M)}-${pad(d)}`,tr=S.t.filter(t=>t.trade_date===ds),s=st(tr),fl=sum(S.c.filter(x=>x.flow_date===ds).map(cs));
+  const open=run;run+=fl+s.net;cum+=s.net;l.push(d);v.push(s.net);
+  rows+=`<tr><td>${d}</td><td>${new Date(Y,M-1,d).toLocaleDateString('en-US',{weekday:'short'})}</td><td>${s.n}</td><td>${s.w}</td><td>${s.l}</td><td>${cl(s.net)}</td><td>${f(fl)}</td><td>${f(run)}</td><td>${pc(open>0?s.net/open:0)}</td><td>${cl(cum)}</td></tr>`}
+ return `<div class="box"><b>Daily net P/L, ${MN[M-1]} ${Y}</b>${bars(l,v)}</div><div class="box">${tbl(['Day','Weekday','Trades','Wins','Losses','Net P/L','Deposit / withdrawal','Closing balance','Daily return','Cumulative P/L'],rows)}</div>`},
+Monthly(){const ms=months(),yr=per(`${Y}-01-01`,`${Y+1}-01-01`);return `<div class="box">${tbl(['Month',...PH],ms.map((r,i)=>prow(MN[i],r)).join('')+prow('Year total',yr,'tot'))}</div>`},
+Yearly(){const last=Math.max(+today().slice(0,4),...S.t.map(t=>+(t.trade_date||'0').slice(0,4)));let rows=prow('All-time',per('0000','9999'),'tot');
+ for(let y=S.s.firstYear;y<=last;y++)rows+=prow(y,per(`${y}-01-01`,`${y+1}-01-01`));return `<div class="box">${tbl(['Year',...PH],rows)}</div>`},
+Strategies(){return `<div class="box">${tbl(['Strategy','Trades','Wins','Losses','Win rate','Net P/L (year)','Net P/L (all time)','Profit factor','Avg R','Avg planned RR'],S.s.strategies.map(s=>{
+ const all=S.t.filter(t=>t.strategy===s),yr=all.filter(t=>t.trade_date>=`${Y}-01-01`&&t.trade_date<`${Y+1}-01-01`),a=st(all),rrs=all.map(rr).filter(x=>x!=null);
+ return `<tr><td>${esc(s)}</td><td>${a.n}</td><td>${a.w}</td><td>${a.l}</td><td>${pc(a.wr)}</td><td>${cl(st(yr).net)}</td><td>${cl(a.net)}</td><td>${a.pf?a.pf.toFixed(2):'-'}</td><td>${a.avgR.toFixed(2)}</td><td>${rrs.length?(sum(rrs)/rrs.length).toFixed(2):'-'}</td></tr>`}).join(''))}</div>
+ <div class="box"><b>Net P/L by strategy (all time)</b>${bars(S.s.strategies.map(s=>s.slice(0,9)),S.s.strategies.map(s=>st(S.t.filter(t=>t.strategy===s)).net))}</div>`},
+Plan(){const P=S.s.plan,b=bal('9999'),rk=b*P.riskPct/100,ms=months()[M-1],yr=per(`${Y}-01-01`,`${Y+1}-01-01`),mt=(ms.open+ms.dep)*P.monthlyTgt/100,yt=(yr.open+yr.dep)*P.yearlyTgt/100;
+ const tx=(k,l)=>`<div style="grid-column:1/-1"><label>${l}</label><textarea rows="2" data-p="${k}" onchange="setP(this)">${esc(P[k])}</textarea></div>`;
+ const nm=(k,l)=>`<div><label>${l}</label><input type="number" step="any" data-p="${k}" value="${P[k]}" onchange="setP(this)"></div>`;
+ return `<div class="box"><b>Strategy</b><div class="form">${[['primary','Primary strategy'],['secondary','Secondary strategy'],['htf','Higher-timeframe bias'],['etf','Entry timeframe'],['sessions','Sessions traded'],['indicators','Indicators / key levels'],['entry','Entry rules'],['exit','Exit & trade management']].map(a=>tx(...a)).join('')}</div></div>
+ <div class="box"><b>Risk rules and targets</b><div class="form">${[['riskPct','Risk per trade (% of balance)'],['dailyLossPct','Max daily loss (%)'],['weeklyLossPct','Max weekly loss (%)'],['maxTrades','Max trades per day'],['minRR','Minimum RR (1 : X)'],['slDist','Stop-loss distance ($)'],['dailyTgt','Daily target (%)'],['monthlyTgt','Monthly target (%)'],['yearlyTgt','Yearly target (%)']].map(a=>nm(...a)).join('')}</div></div>
+ <div class="kpis" style="margin-top:10px">${kpi('Current balance',f(b))}${kpi('Risk per trade ($)',f(rk))}${kpi('Max daily loss ($)',f(b*P.dailyLossPct/100))}${kpi('Max weekly loss ($)',f(b*P.weeklyLossPct/100))}${kpi('Target reward / trade ($)',f(rk*P.minRR))}${kpi('Break-even win rate',pc(P.minRR>0?1/(1+P.minRR):0))}
+ ${kpi('Suggested lot size',P.slDist>0?(Math.floor(rk/(P.slDist*S.s.contract)*100)/100).toFixed(2):'0')}${kpi('Take-profit distance ($)',f(P.slDist*P.minRR))}${kpi('Daily target ($)',f(b*P.dailyTgt/100))}${kpi('Monthly target ($)',f(mt))}${kpi('Net P/L '+MN[M-1],cl(ms.net))}${kpi('Monthly target progress',pc(mt>0?ms.net/mt:0))}${kpi('Yearly target ($)',f(yt))}${kpi('Net P/L year',cl(yr.net))}</div>`},
+Notes(){return `<div class="box form"><div><label>Date</label><input id="nD" type="date" value="${today()}"></div><div><label>Category</label><select id="nC">${['Lesson','Mistake','Idea','Market view','Monthly review','Rule change'].map(x=>`<option>${x}</option>`).join('')}</select></div><div style="grid-column:1/-1"><label>Note</label><textarea id="nT" rows="3"></textarea></div><button class="primary" onclick="addN()">Add note</button></div>
+ <div class="box">${tbl(['Date','Category','Note',''],S.n.map(x=>`<tr><td>${x.note_date}</td><td>${esc(x.category)}</td><td style="text-align:left;white-space:normal">${esc(x.note)}</td><td><button class="danger" onclick="delRow('notes','${x.id}')">Delete</button></td></tr>`).join('')||'<tr><td colspan=4>No notes yet.</td></tr>')}</div>`},
+Setup(){const s=S.s,i=(k,l,t='text')=>`<div><label>${l}</label><input type="${t}" data-s="${k}" value="${esc(s[k])}" onchange="setS(this)"></div>`;
+ return `<div class="box form">${i('account','Account / broker name')}${i('instrument','Instrument')}${i('currency','Account currency')}${i('initcap','Initial capital','number')}${i('start','Tracking start date','date')}${i('firstYear','First year on Yearly tab','number')}${i('contract','Contract size (oz per 1.00 lot)','number')}
+ <div style="grid-column:1/-1"><label>Strategy list (one per line, feeds the Strategy dropdown)</label><textarea rows="6" data-s="strategies" onchange="setS(this)">${esc(s.strategies.join('\n'))}</textarea></div></div>
+ <p class="muted">Net P/L = Gross P/L minus fees. Risk = |entry - stop loss| x lots x contract size. Return % = Net P/L / (opening balance + deposits). Planned RR = |take profit - entry| / |entry - stop loss|.</p>`}
+};
+function grid(){const k=q.toLowerCase(),a=S.t.filter(t=>(!fo||out(t)===fo)&&(!k||[t.strategy,t.notes,t.symbol].join(' ').toLowerCase().includes(k)));
+ return a.length?a.map(t=>{const r=R(t);return `<div class="card" data-id="${t.id}">${urls[t.image_path]?`<img loading="lazy" src="${esc(urls[t.image_path])}" alt="">`:'<div class="ph"></div>'}<div class="in"><div class="row"><span class="sym">${esc(t.strategy||'No strategy')}</span><span class="${out(t)}">${out(t)}</span></div><div class="row muted"><span>${esc(t.trade_date)} ${esc(t.side||'')} ${t.lots||''}</span><span>${cl(net(t))}${r!=null?' | '+r.toFixed(2)+'R':''}</span></div></div></div>`}).join(''):'<div class="empty">No trades yet. Add your first one above.</div>'}
+
+function render(){
+ $('tabs').innerHTML=TABS.map(t=>`<button class="${t===tab?'on':''}" data-tab="${t}">${t}</button>`).join('');
+ $('per').style.display=PER.includes(tab)?'flex':'none';$('pY').value=Y;$('pM').value=M;
+ $('view').innerHTML=V[tab]();
+ if($('drop')){$('drop').onclick=()=>$('file').click();$('file').onchange=e=>{addFiles(e.target.files);e.target.value=''};
+  ['dragover','dragenter'].forEach(v=>$('drop').addEventListener(v,e=>{e.preventDefault();$('drop').classList.add('over')}));
+  ['dragleave','drop'].forEach(v=>$('drop').addEventListener(v,e=>{e.preventDefault();$('drop').classList.remove('over')}));
+  $('drop').addEventListener('drop',e=>addFiles(e.dataTransfer.files))}
+}
+$('pM').innerHTML=MN.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
+$('pY').onchange=e=>{Y=+e.target.value||Y;render()};$('pM').onchange=e=>{M=+e.target.value;render()};
+$('tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(b){tab=b.dataset.tab;render()}};
+$('view').onclick=e=>{const c=e.target.closest('.card');if(c){const t=S.t.find(x=>x.id===c.dataset.id);if(t)openModal(t,null)}};
+
+/* ---------- auth + data ---------- */
+async function showFor(session){user=session?session.user:null;$('login').hidden=!!user;$('app').hidden=!user;if(user)await load()}
+sb.auth.getSession().then(({data})=>showFor(data.session));
+sb.auth.onAuthStateChange((ev,s)=>{if(ev==='SIGNED_OUT')showFor(null)});
+$('loginBtn').onclick=async()=>{$('loginErr').textContent='';$('loginBtn').disabled=true;const{data,error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('pass').value});$('loginBtn').disabled=false;if(error){$('loginErr').textContent=error.message;return}showFor(data.session)};
+$('pass').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
+$('logout').onclick=()=>sb.auth.signOut();
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',2800)}
+const NUM=['lots','entry','stop_loss','take_profit','exit_price','gross','fees','pnl'];
+async function load(){
+ const[a,b,c,d]=await Promise.all([sb.from('trades').select('*').order('trade_date',{ascending:false}).order('created_at',{ascending:false}),sb.from('cashflow').select('*').order('flow_date',{ascending:false}),sb.from('notes').select('*').order('note_date',{ascending:false}),sb.from('settings').select('data').maybeSingle()]);
+ const er=a.error||b.error||c.error||d.error;if(er)toast('Load error: '+er.message+' (did you run the new SQL?)');
+ S.t=(a.data||[]).map(t=>{NUM.forEach(k=>{if(t[k]!=null)t[k]=Number(t[k])});return t});S.c=b.data||[];S.n=c.data||[];
+ const sd=d.data?.data||{};S.s={...DEF,...sd,plan:{...DEF.plan,...(sd.plan||{})}};
+ urls={};const paths=S.t.map(t=>t.image_path).filter(Boolean);
+ if(paths.length){const{data:sg}=await sb.storage.from(BUCKET).createSignedUrls(paths,3600);(sg||[]).forEach(x=>{if(x.signedUrl)urls[x.path]=x.signedUrl})}
+ render()}
+async function saveSet(){const{error}=await sb.from('settings').upsert({user_id:user.id,data:S.s},{onConflict:'user_id'});toast(error?'Could not save: '+error.message:'Saved')}
+function setP(el){const k=el.dataset.p;S.s.plan[k]=el.type==='number'?Number(el.value):el.value;saveSet().then(render)}
+function setS(el){const k=el.dataset.s;S.s[k]=k==='strategies'?el.value.split('\n').map(x=>x.trim()).filter(Boolean):el.type==='number'?Number(el.value):el.value;saveSet().then(render)}
+async function addC(){const a=+$('cA').value;if(!a)return toast('Enter an amount');const{error}=await sb.from('cashflow').insert({flow_date:$('cD').value||today(),type:$('cT').value,amount:a,note:$('cN').value.trim()});if(error)return toast(error.message);load()}
+async function addN(){const t=$('nT').value.trim();if(!t)return toast('Write a note first');const{error}=await sb.from('notes').insert({note_date:$('nD').value||today(),category:$('nC').value,note:t});if(error)return toast(error.message);load()}
+async function delRow(tb,id){if(!confirm('Delete this entry?'))return;const{error}=await sb.from(tb).delete().eq('id',id);if(error)return toast(error.message);load()}
+
+/* ---------- screenshots + trade modal ---------- */
+async function compress(file){try{const b=await createImageBitmap(file),s=Math.min(1,1600/Math.max(b.width,b.height)),c=document.createElement('canvas');c.width=Math.round(b.width*s);c.height=Math.round(b.height*s);c.getContext('2d').drawImage(b,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(x=>r(x||file),'image/jpeg',.85))}catch(e){return file}}
+function addFiles(fs){const im=[...fs].filter(x=>x.type.startsWith('image/'));if(!im.length)return;queue.push(...im);if(!$('modal').classList.contains('open'))nextQ()}
+async function nextQ(){const x=queue.shift();if(!x){closeModal();return}openModal(null,await compress(x))}
+document.addEventListener('paste',e=>{if(!user||tab!=='Trades')return;const fs=[...(e.clipboardData?.items||[])].filter(i=>i.type.startsWith('image/')).map(i=>i.getAsFile());if(fs.length)addFiles(fs)});
+const MI=['mDate','mStrat','mDir','mLots','mEntry','mSL','mTP','mExit','mGross','mFees','mNotes'];
+function openModal(t,blob){cur={trade:t,blob};const x=t||{};
+ $('mStrat').innerHTML=S.s.strategies.map(s=>`<option>${esc(s)}</option>`).join('');
+ const src=t?urls[t.image_path]:blob?URL.createObjectURL(blob):'';$('mImg').hidden=!src;$('mImg').src=src||'';$('mFile').value='';
+ $('mDate').value=x.trade_date||today();$('mStrat').value=x.strategy||S.s.strategies[0]||'';$('mDir').value=x.side==='Sell'||x.side==='Short'?'Sell':'Buy';
+ [['mLots','lots'],['mEntry','entry'],['mSL','stop_loss'],['mTP','take_profit'],['mExit','exit_price'],['mGross','gross']].forEach(([i,k])=>$(i).value=x[k]!=null?x[k]:'');
+ $('mFees').value=x.fees||0;$('mNotes').value=x.notes||'';$('mErr').textContent='';$('mDel').style.visibility=t?'visible':'hidden';$('modal').classList.add('open');calc()}
+function closeModal(){$('modal').classList.remove('open');cur=null}
+const gv=i=>$(i).value===''?null:Number($(i).value);
+function form(){return{trade_date:$('mDate').value||today(),strategy:$('mStrat').value,side:$('mDir').value,lots:gv('mLots'),entry:gv('mEntry'),stop_loss:gv('mSL'),take_profit:gv('mTP'),exit_price:gv('mExit'),gross:gv('mGross'),fees:gv('mFees')||0,notes:$('mNotes').value.trim(),symbol:'XAUUSD'}}
+function calc(){const o=form();if(o.gross==null){$('mCalc').textContent='Enter Gross P/L to see Net P/L, Risk, RR and R.';return}const r=risk(o),p=rr(o),k=R(o);
+ $('mCalc').innerHTML=`Net P/L <b>${f(net(o))}</b> | Risk ${r!=null?f(r):'-'} | Planned RR ${p!=null?'1:'+p.toFixed(1):'-'} | Result ${k!=null?k.toFixed(2)+'R':'-'} | <b class="${out(o)}">${out(o)}</b>`}
+MI.forEach(i=>$(i).addEventListener('input',calc));
+$('mFile').onchange=async e=>{const x=e.target.files[0];if(!x||!cur)return;cur.blob=await compress(x);$('mImg').src=URL.createObjectURL(cur.blob);$('mImg').hidden=false};
+$('mCancel').onclick=()=>{if(cur&&!cur.trade&&queue.length)nextQ();else{queue=[];closeModal()}};
+$('mSave').onclick=async()=>{if(!cur)return;const o=form();if(o.gross==null){$('mErr').textContent='Enter Gross P/L (the broker result before fees).';return}
+ $('mSave').disabled=true;$('mErr').textContent='';o.pnl=net(o);o.result=out(o);const old=cur.trade?.image_path;
+ try{let np=null;if(cur.blob){np=user.id+'/'+crypto.randomUUID()+'.jpg';const up=await sb.storage.from(BUCKET).upload(np,cur.blob,{contentType:'image/jpeg'});if(up.error)throw up.error;o.image_path=np}
+  const r=cur.trade?await sb.from('trades').update(o).eq('id',cur.trade.id):await sb.from('trades').insert(o);
+  if(r.error){if(np)await sb.storage.from(BUCKET).remove([np]);throw r.error}
+  if(np&&old)await sb.storage.from(BUCKET).remove([old]);
+  const more=!cur.trade&&queue.length;toast('Saved');await load();if(more){nextQ()}else closeModal()
+ }catch(e){$('mErr').textContent='Could not save: '+(e.message||e)}
+ $('mSave').disabled=false};
+$('mDel').onclick=async()=>{if(!cur||!cur.trade||!confirm('Delete this trade and its screenshot?'))return;const t=cur.trade,{error}=await sb.from('trades').delete().eq('id',t.id);if(error){$('mErr').textContent=error.message;return}if(t.image_path)await sb.storage.from(BUCKET).remove([t.image_path]);closeModal();toast('Deleted');load()};
+</script>
+</body>
+</html>
