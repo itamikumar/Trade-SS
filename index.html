@@ -5,26 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Trade Screenshots</title>
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
---bg:#f6f7f9;--card:#fff;--text:#14181f;--muted:#6b7380;--line:#e2e5ea;--accent:#2563eb;--win:#12935a;--loss:#d6403a;--be:#8a6d00}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1217;--card:#181c23;--text:#e8ebf0;--muted:#8d96a5;--line:#2a303a;--accent:#5b8cff;--win:#3ccf8e;--loss:#ff6b64;--be:#e0b83a}}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1217;--card:#181c23;--text:#e8ebf0;--muted:#8d96a5;--line:#2a303a;--accent:#5b8cff;--win:#3ccf8e;--loss:#ff6b64;--be:#e0b83a}
+:root{--bg:#f6f7f9;--card:#fff;--text:#14181f;--muted:#6b7380;--line:#e2e5ea;--accent:#2563eb;--win:#12935a;--loss:#d6403a;--be:#8a6d1c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1217;--card:#181c23;--text:#e8ebf0;--muted:#8d96a5;--line:#2a303a;--accent:#4f8cff;--win:#3ac98a;--loss:#ff6b64;--be:#d9b44a}}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .wrap{max-width:1000px;margin:0 auto;padding:16px}
+[hidden]{display:none!important}
 h1{font-size:20px;margin:4px 0 12px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
-.stat b{display:block;font-size:18px}.stat span{font-size:12px;color:var(--muted)}
+.stat b{display:block;font-size:18px}
+.stat span{font-size:12px;color:var(--muted)}
 .drop{border:2px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted);background:var(--card);cursor:pointer}
 .drop.over{border-color:var(--accent);color:var(--accent)}
 .drop b{color:var(--text)}
 .bar{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
 input,select,textarea,button{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
 .bar input{flex:1;min-width:140px}
-button{cursor:pointer}button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button{cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 button.danger{color:var(--loss)}
+button:disabled{opacity:.6;cursor:default}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer}
 .card img{width:100%;height:150px;object-fit:cover;display:block;background:var(--line)}
@@ -35,7 +39,7 @@ button.danger{color:var(--loss)}
 .Win{color:var(--win)}.Loss{color:var(--loss)}.BE{color:var(--be)}
 .muted{color:var(--muted);font-size:12px}
 .empty{text-align:center;color:var(--muted);padding:40px 0}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px));z-index:20}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:16px}
 .modal.open{display:flex}
 .panel{background:var(--card);border-radius:14px;max-width:560px;width:100%;padding:14px}
 .panel img{width:100%;border-radius:8px;display:block;margin-bottom:10px}
@@ -43,157 +47,249 @@ button.danger{color:var(--loss)}
 .panel input,.panel select,.panel textarea{width:100%}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .actions{display:flex;gap:8px;margin-top:14px;justify-content:space-between}
+.login{max-width:360px;margin:12vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.login input{width:100%;margin-bottom:10px}
+.login button{width:100%}
+.err{color:var(--loss);font-size:13px;min-height:18px;margin:6px 0 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;display:none}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>📈 Trade Screenshots</h1>
+
+<div id="login" class="wrap" hidden>
+  <div class="login">
+    <h1>Trade Screenshots</h1>
+    <input id="email" type="email" placeholder="Email" autocomplete="username">
+    <input id="pass" type="password" placeholder="Password" autocomplete="current-password">
+    <button class="primary" id="loginBtn">Log in</button>
+    <p class="err" id="loginErr"></p>
+  </div>
+</div>
+
+<div id="app" class="wrap" hidden>
+  <div class="top">
+    <h1>Trade Screenshots</h1>
+    <button id="logout">Log out</button>
+  </div>
   <div class="stats">
     <div class="stat"><b id="sCount">0</b><span>Trades</span></div>
-    <div class="stat"><b id="sWin">–</b><span>Win rate</span></div>
+    <div class="stat"><b id="sWin">-</b><span>Win rate</span></div>
     <div class="stat"><b id="sPnl">0</b><span>Net P/L</span></div>
-    <div class="stat"><b id="sBest">–</b><span>Best trade</span></div>
+    <div class="stat"><b id="sBest">-</b><span>Best trade</span></div>
   </div>
 
   <div class="drop" id="drop" tabindex="0">
-    <b>Drop, paste (Ctrl/Cmd+V) or tap to add screenshots</b><br>
-    <span>Images are saved privately in this browser</span>
+    <b>Tap to add screenshots, or paste or drop them here</b><br>
+    <span>Saved to your account, visible on any device after login</span>
   </div>
   <input type="file" id="file" accept="image/*" multiple hidden>
 
   <div class="bar">
-    <input id="q" type="search" placeholder="Search symbol, tag, notes…">
+    <input id="q" type="search" placeholder="Search symbol, tag, notes...">
     <select id="f"><option value="">All results</option><option>Win</option><option>Loss</option><option>BE</option></select>
   </div>
 
   <div class="grid" id="grid"></div>
-  <div class="empty" id="empty">No screenshots yet. Add your first one above.</div>
+  <div class="empty" id="empty" hidden>No screenshots yet. Add your first one above.</div>
 </div>
 
 <div class="modal" id="modal">
   <div class="panel">
     <img id="mImg" alt="Trade screenshot">
     <div class="two">
-      <div><label>Symbol</label><input id="mSym" placeholder="e.g. EURUSD"></div>
+      <div><label>Symbol</label><input id="mSym" placeholder="e.g. XAUUSD"></div>
       <div><label>Date</label><input id="mDate" type="date"></div>
       <div><label>Side</label><select id="mSide"><option>Long</option><option>Short</option></select></div>
       <div><label>Result</label><select id="mRes"><option>Win</option><option>Loss</option><option>BE</option></select></div>
-      <div><label>P/L amount</label><input id="mPnl" type="number" step="any" placeholder="0"></div>
-      <div><label>Tags (comma separated)</label><input id="mTags" placeholder="breakout, news"></div>
+      <div><label>Profit / loss</label><input id="mPnl" type="number" step="any" placeholder="e.g. 120 or -50"></div>
+      <div><label>Tags</label><input id="mTags" placeholder="e.g. breakout, news"></div>
     </div>
-    <label>Notes</label><textarea id="mNotes" rows="3" placeholder="Setup, entry reason, mistakes…"></textarea>
+    <label>Notes</label>
+    <textarea id="mNotes" rows="3"></textarea>
+    <p class="err" id="mErr"></p>
     <div class="actions">
       <button class="danger" id="mDel">Delete</button>
-      <span><button id="mCancel">Close</button> <button class="primary" id="mSave">Save</button></span>
+      <div style="display:flex;gap:8px">
+        <button id="mCancel">Cancel</button>
+        <button class="primary" id="mSave">Save</button>
+      </div>
     </div>
   </div>
 </div>
+<div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
-(function(){
-  const $=id=>document.getElementById(id);
-  let db=null,items=[],cur=null,mem=false;
-  const urls={};
+const SUPABASE_URL = 'https://wihouxhxcomrwwwhbmud.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_0QyfnCAwLctIg1Bkl4_NeA_dOfB8DEX';
+const BUCKET = 'screenshots';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
 
-  function openDB(){return new Promise(res=>{
-    try{const r=indexedDB.open('trade-shots',1);
-      r.onupgradeneeded=()=>r.result.createObjectStore('t',{keyPath:'id'});
-      r.onsuccess=()=>res(r.result);r.onerror=()=>res(null);
-    }catch(e){res(null)}
-  })}
-  function tx(mode){return db.transaction('t',mode).objectStore('t')}
-  function all(){return new Promise(res=>{if(!db)return res([]);try{const r=tx('readonly').getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>res([])}catch(e){res([])}})}
-  function put(o){return new Promise(res=>{if(!db)return res();try{const r=tx('readwrite').put(o);r.onsuccess=r.onerror=()=>res()}catch(e){res()}})}
-  function del(id){return new Promise(res=>{if(!db)return res();try{const r=tx('readwrite').delete(id);r.onsuccess=r.onerror=()=>res()}catch(e){res()}})}
+let user = null, trades = [], urls = {}, queue = [], current = null;
 
-  function shrink(file){return new Promise(res=>{
-    const img=new Image(),u=URL.createObjectURL(file);
-    img.onload=()=>{const m=1800,s=Math.min(1,m/Math.max(img.width,img.height));
-      const c=document.createElement('canvas');c.width=img.width*s;c.height=img.height*s;
-      c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);
-      c.toBlob(b=>res(b||file),'image/jpeg',.88)};
-    img.onerror=()=>{URL.revokeObjectURL(u);res(file)};img.src=u;
-  })}
-  const today=()=>new Date().toISOString().slice(0,10);
-  const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-  const url=o=>urls[o.id]||(urls[o.id]=URL.createObjectURL(o.blob));
-  const fmt=n=>(n>0?'+':'')+(Math.round(n*100)/100);
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2500)}
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 
-  async function addFiles(files){
-    for(const f of files){
-      if(!f.type.startsWith('image/'))continue;
-      const blob=await shrink(f);
-      const o={id:uid(),blob,symbol:'',date:today(),side:'Long',result:'Win',pnl:0,tags:'',notes:'',created:Date.now()};
-      items.push(o);await put(o);
-      if(files.length===1||f===files[files.length-1])openModal(o);
-    }
-    render();
+/* ---------- auth ---------- */
+async function showForSession(session){
+  user = session ? session.user : null;
+  $('login').hidden = !!user;
+  $('app').hidden = !user;
+  if(user) await load();
+}
+sb.auth.getSession().then(({data})=>showForSession(data.session));
+sb.auth.onAuthStateChange((ev,session)=>{ if(ev==='SIGNED_OUT') showForSession(null); });
+
+$('loginBtn').onclick = async ()=>{
+  $('loginErr').textContent='';
+  $('loginBtn').disabled=true;
+  const {data,error} = await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('pass').value});
+  $('loginBtn').disabled=false;
+  if(error){ $('loginErr').textContent = error.message; return; }
+  showForSession(data.session);
+};
+$('pass').addEventListener('keydown',e=>{ if(e.key==='Enter') $('loginBtn').click(); });
+$('logout').onclick = ()=>sb.auth.signOut();
+
+/* ---------- data ---------- */
+async function load(){
+  const {data,error} = await sb.from('trades').select('*').order('trade_date',{ascending:false}).order('created_at',{ascending:false});
+  if(error){ toast('Could not load: '+error.message); return; }
+  trades = data || [];
+  urls = {};
+  const paths = trades.map(t=>t.image_path).filter(Boolean);
+  if(paths.length){
+    const {data:signed} = await sb.storage.from(BUCKET).createSignedUrls(paths,3600);
+    (signed||[]).forEach(s=>{ if(s.signedUrl) urls[s.path]=s.signedUrl; });
   }
+  render();
+}
 
-  function render(){
-    const q=$('q').value.toLowerCase().trim(),f=$('f').value;
-    const list=items.filter(o=>(!f||o.result===f)&&(!q||(o.symbol+' '+o.tags+' '+o.notes).toLowerCase().includes(q)))
-      .sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.created-a.created);
-    const g=$('grid');g.textContent='';
-    list.forEach(o=>{
-      const d=document.createElement('div');d.className='card';
-      const im=document.createElement('img');im.src=url(o);im.alt='';im.loading='lazy';
-      const inn=document.createElement('div');inn.className='in';
-      const r1=document.createElement('div');r1.className='row';
-      const s=document.createElement('span');s.className='sym';s.textContent=o.symbol||'Untitled';
-      const p=document.createElement('span');p.className=o.result;p.textContent=fmt(+o.pnl||0);p.style.fontWeight=600;
-      r1.append(s,p);
-      const r2=document.createElement('div');r2.className='row muted';
-      r2.append(Object.assign(document.createElement('span'),{textContent:(o.date||'')+' · '+o.side}),
-                Object.assign(document.createElement('span'),{textContent:o.result}));
-      inn.append(r1,r2);
-      if(o.tags){const t=document.createElement('div');t.style.marginTop='6px';
-        o.tags.split(',').map(x=>x.trim()).filter(Boolean).slice(0,3).forEach(x=>{const e=document.createElement('span');e.className='tag';e.textContent=x;e.style.marginRight='4px';t.append(e)});inn.append(t)}
-      d.append(im,inn);d.onclick=()=>openModal(o);g.append(d);
-    });
-    $('empty').style.display=list.length?'none':'block';
-    $('empty').textContent=items.length?'No trades match your filter.':'No screenshots yet. Add your first one above.';
-    const n=items.length,w=items.filter(o=>o.result==='Win').length,dec=items.filter(o=>o.result!=='BE').length;
-    const net=items.reduce((a,o)=>a+(+o.pnl||0),0),best=items.reduce((a,o)=>Math.max(a,+o.pnl||0),0);
-    $('sCount').textContent=n;$('sWin').textContent=dec?Math.round(w/dec*100)+'%':'–';
-    $('sPnl').textContent=fmt(net);$('sPnl').style.color=net>0?'var(--win)':net<0?'var(--loss)':'';
-    $('sBest').textContent=best>0?fmt(best):'–';
-  }
-
-  function openModal(o){
-    cur=o;$('mImg').src=url(o);
-    $('mSym').value=o.symbol;$('mDate').value=o.date;$('mSide').value=o.side;$('mRes').value=o.result;
-    $('mPnl').value=o.pnl||'';$('mTags').value=o.tags;$('mNotes').value=o.notes;
-    $('modal').classList.add('open');
-  }
-  const close=()=>{$('modal').classList.remove('open');cur=null};
-  $('mCancel').onclick=close;
-  $('modal').onclick=e=>{if(e.target===$('modal'))close()};
-  $('mSave').onclick=async()=>{
-    if(!cur)return;
-    Object.assign(cur,{symbol:$('mSym').value.trim().toUpperCase(),date:$('mDate').value,side:$('mSide').value,
-      result:$('mRes').value,pnl:parseFloat($('mPnl').value)||0,tags:$('mTags').value,notes:$('mNotes').value});
-    await put(cur);close();render();
-  };
-  $('mDel').onclick=async()=>{
-    if(!cur||!confirm('Delete this screenshot?'))return;
-    items=items.filter(x=>x!==cur);await del(cur.id);close();render();
-  };
-
-  const drop=$('drop');
-  drop.onclick=()=>$('file').click();
-  $('file').onchange=e=>{addFiles([...e.target.files]);e.target.value=''};
-  ['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
-  ['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
-  document.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.files.length)addFiles([...e.dataTransfer.files])});
-  document.addEventListener('paste',e=>{
-    if($('modal').classList.contains('open'))return;
-    const fs=[...(e.clipboardData?e.clipboardData.files:[])];if(fs.length)addFiles(fs);
+function render(){
+  const q = $('q').value.trim().toLowerCase(), f = $('f').value;
+  const list = trades.filter(t=>{
+    if(f && t.result!==f) return false;
+    if(!q) return true;
+    return [t.symbol,t.tags,t.notes].join(' ').toLowerCase().includes(q);
   });
-  $('q').oninput=render;$('f').onchange=render;
+  const wins = trades.filter(t=>t.result==='Win').length, losses = trades.filter(t=>t.result==='Loss').length;
+  const pnl = trades.reduce((a,t)=>a+(Number(t.pnl)||0),0);
+  const best = trades.reduce((m,t)=>Math.max(m,Number(t.pnl)||0),0);
+  $('sCount').textContent = trades.length;
+  $('sWin').textContent = (wins+losses) ? Math.round(wins/(wins+losses)*100)+'%' : '-';
+  $('sPnl').textContent = (pnl>0?'+':'')+pnl.toFixed(2).replace(/\.00$/,'');
+  $('sBest').textContent = best>0 ? '+'+best : '-';
+  $('empty').hidden = list.length>0;
+  $('grid').innerHTML = list.map(t=>`
+    <div class="card" data-id="${esc(t.id)}">
+      <img loading="lazy" src="${esc(urls[t.image_path]||'')}" alt="">
+      <div class="in">
+        <div class="row"><span class="sym">${esc(t.symbol||'Untitled')}</span><span class="${esc(t.result)}">${esc(t.result||'')}</span></div>
+        <div class="row muted"><span>${esc(t.trade_date||'')} ${esc(t.side||'')}</span><span>${t.pnl!=null?esc(t.pnl):''}</span></div>
+        ${t.tags?`<div style="margin-top:6px">${t.tags.split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span class="tag">${esc(x)}</span>`).join(' ')}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+$('q').oninput = render; $('f').onchange = render;
+$('grid').onclick = e=>{
+  const c = e.target.closest('.card'); if(!c) return;
+  const t = trades.find(x=>x.id===c.dataset.id); if(t) openModal(t, null);
+};
 
-  (async()=>{db=await openDB();items=await all();render()})();
-})();
+/* ---------- images in ---------- */
+async function compress(file){
+  try{
+    const bmp = await createImageBitmap(file);
+    const s = Math.min(1, 1600/Math.max(bmp.width,bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width*s); c.height = Math.round(bmp.height*s);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    return await new Promise(r=>c.toBlob(b=>r(b||file),'image/jpeg',0.85));
+  }catch(e){ return file; }
+}
+function addFiles(files){
+  const imgs = [...files].filter(f=>f.type.startsWith('image/'));
+  if(!imgs.length) return;
+  queue.push(...imgs);
+  if(!$('modal').classList.contains('open')) nextInQueue();
+}
+async function nextInQueue(){
+  const f = queue.shift();
+  if(!f){ closeModal(); return; }
+  const blob = await compress(f);
+  openModal(null, blob);
+}
+$('drop').onclick = ()=>$('file').click();
+$('file').onchange = e=>{ addFiles(e.target.files); e.target.value=''; };
+['dragover','dragenter'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.add('over')}));
+['dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.remove('over')}));
+$('drop').addEventListener('drop',e=>addFiles(e.dataTransfer.files));
+document.addEventListener('paste',e=>{
+  if(!user) return;
+  const files = [...(e.clipboardData?.items||[])].filter(i=>i.type.startsWith('image/')).map(i=>i.getAsFile());
+  if(files.length) addFiles(files);
+});
+
+/* ---------- modal ---------- */
+function openModal(trade, blob){
+  current = {trade, blob};
+  const t = trade || {};
+  $('mImg').src = trade ? (urls[trade.image_path]||'') : URL.createObjectURL(blob);
+  $('mSym').value = t.symbol || 'XAUUSD';
+  $('mDate').value = t.trade_date || today();
+  $('mSide').value = t.side || 'Long';
+  $('mRes').value = t.result || 'Win';
+  $('mPnl').value = t.pnl!=null ? t.pnl : '';
+  $('mTags').value = t.tags || '';
+  $('mNotes').value = t.notes || '';
+  $('mErr').textContent = '';
+  $('mDel').style.visibility = trade ? 'visible' : 'hidden';
+  $('modal').classList.add('open');
+}
+function closeModal(){ $('modal').classList.remove('open'); current=null; }
+$('mCancel').onclick = ()=>{ if(current && !current.trade && queue.length){ nextInQueue(); } else { queue=[]; closeModal(); } };
+
+$('mSave').onclick = async ()=>{
+  if(!current) return;
+  $('mSave').disabled = true; $('mErr').textContent='';
+  const fields = {
+    symbol:$('mSym').value.trim(), trade_date:$('mDate').value||null, side:$('mSide').value,
+    result:$('mRes').value, pnl:$('mPnl').value===''?null:Number($('mPnl').value),
+    tags:$('mTags').value.trim(), notes:$('mNotes').value.trim()
+  };
+  try{
+    if(current.trade){
+      const {error} = await sb.from('trades').update(fields).eq('id',current.trade.id);
+      if(error) throw error;
+      closeModal();
+    }else{
+      const path = user.id+'/'+crypto.randomUUID()+'.jpg';
+      const up = await sb.storage.from(BUCKET).upload(path,current.blob,{contentType:'image/jpeg'});
+      if(up.error) throw up.error;
+      const {error} = await sb.from('trades').insert({...fields,image_path:path});
+      if(error){ await sb.storage.from(BUCKET).remove([path]); throw error; }
+      toast('Saved');
+      if(queue.length){ await load(); $('mSave').disabled=false; nextInQueue(); return; }
+      closeModal();
+    }
+    await load();
+  }catch(err){
+    $('mErr').textContent = 'Could not save: '+(err.message||err);
+  }
+  $('mSave').disabled = false;
+};
+
+$('mDel').onclick = async ()=>{
+  if(!current || !current.trade) return;
+  if(!confirm('Delete this trade and its screenshot?')) return;
+  const t = current.trade;
+  const {error} = await sb.from('trades').delete().eq('id',t.id);
+  if(error){ $('mErr').textContent='Could not delete: '+error.message; return; }
+  if(t.image_path) await sb.storage.from(BUCKET).remove([t.image_path]);
+  closeModal(); toast('Deleted'); load();
+};
 </script>
 </body>
 </html>
